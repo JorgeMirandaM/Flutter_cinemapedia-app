@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/config/helpers/human_formats.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class MovieHorizontalListview extends StatefulWidget {
   final List<Movie> movies;
@@ -17,23 +18,21 @@ class MovieHorizontalListview extends StatefulWidget {
       this.loadNextPage});
 
   @override
-  State<MovieHorizontalListview> createState() => _MovieHorizontalListviewState();
+  State<MovieHorizontalListview> createState() =>
+      _MovieHorizontalListviewState();
 }
 
 class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
-
-
-  final scrollController=ScrollController();
+  final scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     scrollController.addListener(() {
-      if(widget.loadNextPage==null)return;
+      if (widget.loadNextPage == null) return;
 
-      if(scrollController.position.pixels + 200 >= scrollController.position.maxScrollExtent){
-        print('Print load next movie');
-
+      if (scrollController.position.pixels + 200 >=
+          scrollController.position.maxScrollExtent) {
         widget.loadNextPage!();
       }
     });
@@ -43,9 +42,6 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
   void dispose() {
     scrollController.dispose();
     super.dispose();
-
-
-
   }
 
   @override
@@ -60,7 +56,7 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
           ),
         Expanded(
             child: ListView.builder(
-              controller: scrollController,
+          controller: scrollController,
           itemCount: widget.movies.length,
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
@@ -95,10 +91,10 @@ class _Slide extends StatelessWidget {
               width: 150,
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress != null) {
-                  return SizedBox(
+                  return const SizedBox(
                     height: 200,
-                    child: const Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    child:  Padding(
+                      padding:  EdgeInsets.all(8.0),
                       child: Center(
                           child: CircularProgressIndicator(
                         strokeWidth: 2,
@@ -106,8 +102,10 @@ class _Slide extends StatelessWidget {
                     ),
                   );
                 }
-
-                return FadeIn(child: child);
+                return GestureDetector(
+                  onTap: () => context.push('/movie/${movie.id}'),
+                  child: FadeIn(child: child),
+                );
               },
             ),
           ),
