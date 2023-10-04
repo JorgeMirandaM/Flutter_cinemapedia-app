@@ -1,76 +1,55 @@
-
-
-
 import 'package:cinemapedia/domain/datasources/local_storage_datasource.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
-class IsarDatasource extends LocalStorageDatasource{
-
-
+class IsarDatasource extends LocalStorageDatasource {
   late Future<Isar> db;
 
-  IsarDatasource(){
-
-    db=openDB();
+  IsarDatasource() {
+    db = openDB();
   }
 
   Future<Isar> openDB() async {
-
     final dir = await getApplicationDocumentsDirectory();
 
-    if(Isar.instanceNames.isEmpty){
-
-      return await Isar.open([MovieSchema],inspector: true, directory: dir.path);
+    if (Isar.instanceNames.isEmpty) {
+      return await Isar.open([MovieSchema],
+          inspector: true, directory: dir.path);
     }
 
     return Future.value(Isar.getInstance());
   }
 
   @override
-  Future<bool> isMovieFavorite(int movieId) async{
-    final isar= await db;
+  Future<bool> isMovieFavorite(int movieId) async {
+    final isar = await db;
     //Busca una pelicula por el id mandado
-    final Movie? isFavoriteMovie= await isar.movies
-    .filter()
-    .idEqualTo(movieId)
-    .findFirst();
+    final Movie? isFavoriteMovie =
+        await isar.movies.filter().idEqualTo(movieId).findFirst();
     //Si isFavoriteMovie es diferente de null, encontro una pelicula y manda true, de lo contrario, manda false
-    return isFavoriteMovie!=null;
-    
+    return isFavoriteMovie != null;
   }
-
 
   @override
-  Future<void> toggleFavorite(Movie movie)async {
-    final isar= await db;
+  Future<void> toggleFavorite(Movie movie) async {
+    final isar = await db;
 
-    final favoriteMovie = await isar.movies
-        .filter()
-        .idEqualTo(movie.id)
-        .findFirst();
+    final favoriteMovie =
+        await isar.movies.filter().idEqualTo(movie.id).findFirst();
 
-        if(favoriteMovie != null){
-        isar.writeTxnSync(() => isar.movies.deleteSync(favoriteMovie.isarId!));
+    if (favoriteMovie != null) {
+      isar.writeTxnSync(() => isar.movies.deleteSync(favoriteMovie.isarId!));
+      return;
+    }
 
-        }
-
-        isar.writeTxnSync(() => isar.movies.putSync(movie));
+    isar.writeTxnSync(() => isar.movies.putSync(movie));
   }
-
 
   @override
-  Future<List<Movie>> loadMovies({int limit = 10, offset = 0})async{
-    final isar= await db;
+  Future<List<Movie>> loadMovies({int limit = 10, offset = 0}) async {
+    final isar = await db;
 
-    return isar.movies.where()
-    .offset(offset)
-    .limit(limit)
-    .findAll();
-
+    return isar.movies.where().offset(offset).limit(limit).findAll();
   }
-
-
-
 }
